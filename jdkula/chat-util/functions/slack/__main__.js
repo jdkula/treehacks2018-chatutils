@@ -5,6 +5,10 @@ const intoStream = require('into-stream');
 const request = require('request-promise-native');
 const base64 = require('base64-stream');
 const streamToString = require('stream-to-string');
+const qs = require('querystring');
+const jimp = require('jimp');
+const imageUtil = require('../../helper/image_util');
+
 
 
 const token = process.env.SLACK_API_KEY;
@@ -34,11 +38,10 @@ module.exports = async (context) => {
                             }
                         };
                         let imageString = await streamToString(request(options).pipe(base64.encode()));
-                        let processedFile = Buffer.from(
-                            await lib[`${context.service.identifier}.image.crop`](imageString, 100, 100, 500, 500),
-                            'base64'
-                        );
-                        await web.files.upload(fileInfo.file.name, {
+                        let b64cropped = await lib[`${context.service.identifier}.image.crop`](imageString, 100, 100, 500, 500);
+                        let processedFile = Buffer.from(b64cropped.substring(b64cropped.indexOf(',')+1), 'base64');
+                        //return processedFile.toString('base64');
+                        return await web.files.upload(fileInfo.file.name, {
                                 file: processedFile
                             }
                         );

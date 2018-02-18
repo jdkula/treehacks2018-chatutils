@@ -18,6 +18,18 @@ module.exports.getBase64 = async (jp, mime = jimp.MIME_PNG) => {
     });
 };
 
+module.exports.getBuffer = async (jp, mime = jimp.MIME_PNG) => {
+    return await new Promise((resolve, reject) => {
+        jp.getBuffer(mime, (err, bf) => {
+            if (err) {
+                reject();
+            } else {
+                resolve(bf);
+            }
+        })
+    });
+};
+
 /**
  * Determines if a specific x,y is in the circle of width,height=w,h
  * @param {int} x
