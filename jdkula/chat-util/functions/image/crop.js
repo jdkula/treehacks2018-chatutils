@@ -17,6 +17,9 @@ module.exports = async (image, x1, y1, x2, y2, shape = "square", context) => {
 
     let imageBuffer = Buffer.from(image, 'base64');
     let imageProcessor = await jimp.read(imageBuffer);
+    if(imageProcessor === undefined || imageProcessor === null) {
+        throw Error("Failed to read image from Slack!")
+    }
     imageProcessor.crop(x1, y1, x2 - x1, y2 - y1);
     if(shape === "oval") {
         const width = imageProcessor.bitmap.width;

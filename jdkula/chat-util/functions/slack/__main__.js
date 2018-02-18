@@ -3,7 +3,9 @@ const lib = require('lib');
 const { WebClient } = require('@slack/client');
 const intoStream = require('into-stream');
 const request = require('request-promise-native');
-const streamBuffers = require('stream-buffers');
+const base64 = require('base64-stream');
+const streamToString = require('stream-to-string');
+
 
 const token = process.env.SLACK_API_KEY;
 const web = new WebClient(token);
@@ -20,7 +22,7 @@ module.exports = async (context) => {
             if (params.event.comment.text.startsWith("/utils")) {
                 let fileId = params.event.file_id;
                 let fileInfo = await web.files.info(fileId);
-                if (fileInfo.ok) {
+                if (fileInfo !== undefined && fileInfo !== null && fileInfo.ok) {
                     if (fileInfo.file.mimetype === "image/png"
                         || fileInfo.file.mimetype === "image/jpg"
                         || fileInfo.file.mimetype === "image/jpeg"
@@ -31,17 +33,14 @@ module.exports = async (context) => {
                                 bearer: process.env.SLACK_API_KEY
                             }
                         };
-                        let imageStreamBuffer = new streamBuffers.WritableStreamBuffer({
-                            initialSize: (100 * 1024),
-                            incrementAmount: (100 * 1024)
-                        });
-                        let result = await request(options);
-                        imageStreamBuffer.write(result.toString());
-                        await web.files.upload(
-                            Buffer.from(
-                                await lib[`${context.service.identifier}.image.crop`](imageStreamBuffer.getContentsAsString('base64'), 10, 10, 40, 40),
-                                'base64'
-                            )
+                        let imageString = await streamToString(request(options).pipe(base64.encode()));
+                        let processedFile = Buffer.from(
+                            await lib[`${context.service.identifier}.image.crop`](imageString, 100, 100, 500, 500),
+                            'base64'
+                        );
+                        await web.files.upload(fileInfo.file.name, {
+                                file: processedFile
+                            }
                         );
                     }
                 }
