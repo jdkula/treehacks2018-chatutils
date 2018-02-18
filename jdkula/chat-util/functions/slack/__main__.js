@@ -194,6 +194,35 @@ module.exports = async (context) => {
                             );
                         }
 
+                        if (commentVal.startsWith("/utils convert")){
+
+                            //parsing the arguments
+                            var a = "png"; var b = 100;
+                            var args = commentVal.substring(commentVal.indexOf('rt')+2).trim();
+                            var ct = 0;
+                            while (args !== "")
+                            {
+                                var currArg = "";
+                                if (args.indexOf(' ') == -1) {currArg = args; args = "";}
+                                if (args.indexOf(' ') >= 0) currArg = args.substring(0, args.indexOf(' '));
+                                args = args.substring(args.indexOf(' ')+1);
+                                args = args.trim();
+
+                                if (ct===0) a = currArg;
+                                if (ct===1) b = parseInt(currArg);
+                                ct++;
+                            }
+
+
+                            let b64cropped = await lib[`${context.service.identifier}.image.convert`](imageString, a, b);
+                            let processedFile = Buffer.from(b64cropped.substring(b64cropped.indexOf(',')+1), 'base64');
+                            //return processedFile.toString('base64');
+                            return await web.files.upload(fileInfo.file.name, {
+                                    file: processedFile
+                                }
+                            );
+                        }
+
                     }
                 }
             }

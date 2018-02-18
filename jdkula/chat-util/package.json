@@ -1,6 +1,6 @@
 {
   "name": "chat-util",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "",
   "author": "jdkula <jdkula@stanford.edu>",
   "main": "functions/__main__.js",
