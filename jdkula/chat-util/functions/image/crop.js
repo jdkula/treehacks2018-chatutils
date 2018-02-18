@@ -1,4 +1,5 @@
 'use strict';
+const imageUtil = require('../../helper/image_util');
 const lib = require('lib');
 const jimp = require('jimp');
 
@@ -21,7 +22,7 @@ module.exports = async (image, x1, y1, x2, y2, shape = "square", context) => {
         const width = imageProcessor.bitmap.width;
         const height = imageProcessor.bitmap.height;
         imageProcessor.scan(0, 0, width, height, (x, y, index) => {
-            if(isInCircle(x, y, width, height)) {
+            if(imageUtil.isInCircle(x, y, width, height)) {
                 if(imageProcessor.bitmap !== undefined) {
                     imageProcessor.bitmap.data[index] = 0; // Red
                     imageProcessor.bitmap.data[index + 1] = 0; // Green
@@ -31,35 +32,5 @@ module.exports = async (image, x1, y1, x2, y2, shape = "square", context) => {
             }
         });
     }
-    return await getBase64(imageProcessor);
-
+    return await imageUtil.getBase64(imageProcessor);
 };
-
-/**
- * Gets the base64 of an image as a Promise.
- * @param {Jimp.Jimp} jp
- * @returns {Promise<string>}
- */
-async function getBase64(jp) {
-    return await new Promise((resolve, reject) => {
-        jp.getBase64(jp.getMIME(), (err, str) => {
-            if (err) {
-                reject();
-            } else {
-                resolve(str);
-            }
-        })
-    });
-}
-
-/**
- * Determines if a specific x,y is in the circle of width,height=w,h
- * @param {int} x
- * @param {int} y
- * @param {int} w The width of the elipsoid
- * @param {int} h The height of the elipsoid
- * @returns {boolean} true if the given x,y is in the elipsoid, false otherwise.
- */
-function isInCircle(x, y, w, h) {
-    return (x-w/2)**2/(w/2)**2 + (y-h/2)**2/(h/2)**2 > 1;
-}
