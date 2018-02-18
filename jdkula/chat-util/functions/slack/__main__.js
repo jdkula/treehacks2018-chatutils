@@ -70,6 +70,102 @@ module.exports = async (context) => {
                                 }
                             );
                         }
+
+                        if (commentVal.startsWith("/utils resize")){
+                            if (commentVal.startsWith("/utils resize_percent")){
+                                //parsing the arguments
+                                var per = 50;
+                                var args = commentVal.substring(commentVal.indexOf('nt')+2).trim();
+                                var ct = 0;
+                                while (args !== "")
+                                {
+                                    var currArg = "";
+                                    if (args.indexOf(' ') == -1) {currArg = args; args = "";}
+                                    if (args.indexOf(' ') >= 0) currArg = args.substring(0, args.indexOf(' '));
+                                    args = args.substring(args.indexOf(' ')+1);
+                                    args = args.trim();
+                                    if (ct===0) per = parseInt(currArg);
+                                    ct++;
+                                }
+
+
+                                let b64cropped = await lib[`${context.service.identifier}.image.resize_percent`](imageString, per);
+                                //return b64cropped;
+                                let processedFile = Buffer.from(b64cropped.substring(b64cropped.indexOf(',')+1), 'base64');
+                                //return processedFile.toString('base64');
+                                return await web.files.upload(fileInfo.file.name, {
+                                        file: processedFile
+                                    }
+                                );
+                            }else{
+                                //parsing the arguments
+                                var width = 100; var height = 100;
+                                var args = commentVal.substring(commentVal.indexOf('ze')+2).trim();
+                                var ct = 0;
+                                while (args !== "")
+                                {
+                                    var currArg = "";
+                                    if (args.indexOf(' ') == -1) {currArg = args; args = "";}
+                                    if (args.indexOf(' ') >= 0) currArg = args.substring(0, args.indexOf(' '));
+                                    args = args.substring(args.indexOf(' ')+1);
+                                    args = args.trim();
+                                    if (ct===0) width = parseInt(currArg);
+                                    if (ct===1) height = parseInt(currArg);
+                                    ct++;
+                                }
+
+
+                                let b64cropped = await lib[`${context.service.identifier}.image.resize`](imageString, width, height);
+                                //return b64cropped;
+                                let processedFile = Buffer.from(b64cropped.substring(b64cropped.indexOf(',')+1), 'base64');
+                                //return processedFile.toString('base64');
+                                return await web.files.upload(fileInfo.file.name, {
+                                        file: processedFile
+                                    }
+                                );
+                            }
+
+                        }
+
+
+                        if (commentVal.startsWith("/utils grey")){
+                            let b64cropped = await lib[`${context.service.identifier}.image.greyscale`](imageString);
+                            let processedFile = Buffer.from(b64cropped.substring(b64cropped.indexOf(',')+1), 'base64');
+                            //return processedFile.toString('base64');
+                            return await web.files.upload(fileInfo.file.name, {
+                                    file: processedFile
+                                }
+                            );
+                        }
+
+                        if (commentVal.startsWith("/utils rotate")){
+
+                            //parsing the arguments
+                            var deg = 90;
+                            var args = commentVal.substring(commentVal.indexOf('p')+1).trim();
+                            var ct = 0;
+                            while (args !== "")
+                            {
+                                var currArg = "";
+                                if (args.indexOf(' ') == -1) {currArg = args; args = "";}
+                                if (args.indexOf(' ') >= 0) currArg = args.substring(0, args.indexOf(' '));
+                                args = args.substring(args.indexOf(' ')+1);
+                                args = args.trim();
+
+                                if (ct===0) deg = parseInt(currArg);
+                                ct++;
+                            }
+
+
+                            let b64cropped = await lib[`${context.service.identifier}.image.rotate`](imageString, deg);
+                            let processedFile = Buffer.from(b64cropped.substring(b64cropped.indexOf(',')+1), 'base64');
+                            //return processedFile.toString('base64');
+                            return await web.files.upload(fileInfo.file.name, {
+                                    file: processedFile
+                                }
+                            );
+                        }
+
                     }
                 }
             }
