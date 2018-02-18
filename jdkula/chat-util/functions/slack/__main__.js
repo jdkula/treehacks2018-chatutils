@@ -142,7 +142,7 @@ module.exports = async (context) => {
 
                             //parsing the arguments
                             var deg = 90;
-                            var args = commentVal.substring(commentVal.indexOf('p')+1).trim();
+                            var args = commentVal.substring(commentVal.indexOf('e')+1).trim();
                             var ct = 0;
                             while (args !== "")
                             {
@@ -158,6 +158,34 @@ module.exports = async (context) => {
 
 
                             let b64cropped = await lib[`${context.service.identifier}.image.rotate`](imageString, deg);
+                            let processedFile = Buffer.from(b64cropped.substring(b64cropped.indexOf(',')+1), 'base64');
+                            //return processedFile.toString('base64');
+                            return await web.files.upload(fileInfo.file.name, {
+                                    file: processedFile
+                                }
+                            );
+                        }
+
+                        if (commentVal.startsWith("/utils bright")){
+
+                            //parsing the arguments
+                            var deg = 0.5;
+                            var args = commentVal.substring(commentVal.indexOf('ht')+2).trim();
+                            var ct = 0;
+                            while (args !== "")
+                            {
+                                var currArg = "";
+                                if (args.indexOf(' ') == -1) {currArg = args; args = "";}
+                                if (args.indexOf(' ') >= 0) currArg = args.substring(0, args.indexOf(' '));
+                                args = args.substring(args.indexOf(' ')+1);
+                                args = args.trim();
+
+                                if (ct===0) deg = parseFloat(currArg);
+                                ct++;
+                            }
+
+
+                            let b64cropped = await lib[`${context.service.identifier}.image.bright`](imageString, deg);
                             let processedFile = Buffer.from(b64cropped.substring(b64cropped.indexOf(',')+1), 'base64');
                             //return processedFile.toString('base64');
                             return await web.files.upload(fileInfo.file.name, {
