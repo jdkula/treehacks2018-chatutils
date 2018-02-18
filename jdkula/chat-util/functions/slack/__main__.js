@@ -37,13 +37,39 @@ module.exports = async (context) => {
                             }
                         };
                         let imageString = await streamToString(request(options).pipe(base64.encode()));
-                        let b64cropped = await lib[`${context.service.identifier}.image.crop`](imageString, 100, 100, 500, 500);
-                        let processedFile = Buffer.from(b64cropped.substring(b64cropped.indexOf(',')+1), 'base64');
-                        //return processedFile.toString('base64');
-                        return await web.files.upload(fileInfo.file.name, {
-                                file: processedFile
+                        let commentVal = params.event.comment.comment;
+
+                        if (commentVal.startsWith("/utils crop")){
+
+                            //parsing the arguments
+                            var x1 = 100; var y1 = 100; var x2 = 500; var y2 = 500; var shape = "square"
+                            var args = commentVal.substring(commentVal.indexOf('p')+1).trim();
+                            var ct = 0;
+                            while (args !== "")
+                            {
+                                var currArg = "";
+                                if (args.indexOf(' ') == -1) {currArg = args; args = "";}
+                                if (args.indexOf(' ') >= 0) currArg = args.substring(0, args.indexOf(' '));
+                                args = args.substring(args.indexOf(' ')+1);
+                                args = args.trim();
+
+                                if (ct===0) x1 = parseInt(currArg);
+                                if (ct===1) y1 = parseInt(currArg);
+                                if (ct===2) x2 = parseInt(currArg);
+                                if (ct===3) y2 = parseInt(currArg);
+                                if (ct==4) shape = currArg.trim();
+                                ct++;
                             }
-                        );
+
+
+                            let b64cropped = await lib[`${context.service.identifier}.image.crop`](imageString, x1, y1, x2, y2, shape);
+                            let processedFile = Buffer.from(b64cropped.substring(b64cropped.indexOf(',')+1), 'base64');
+                            //return processedFile.toString('base64');
+                            return await web.files.upload(fileInfo.file.name, {
+                                    file: processedFile
+                                }
+                            );
+                        }
                     }
                 }
             }
