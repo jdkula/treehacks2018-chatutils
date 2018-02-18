@@ -1,13 +1,12 @@
 'use strict';
 const lib = require('lib');
 const { WebClient } = require('@slack/client');
-const intoStream = require('into-stream');
 const request = require('request-promise-native');
 const base64 = require('base64-stream');
 const streamToString = require('stream-to-string');
-const qs = require('querystring');
-const jimp = require('jimp');
-const imageUtil = require('../../helper/image_util');
+
+
+
 
 
 
@@ -23,7 +22,7 @@ module.exports = async (context) => {
     let params = context.params;
     if (params.event) {
         if (params.event.type === "file_comment_added") {
-            if (params.event.comment.text.startsWith("/utils")) {
+            if (params.event.comment.comment.startsWith("/utils")) {
                 let fileId = params.event.file_id;
                 let fileInfo = await web.files.info(fileId);
                 if (fileInfo !== undefined && fileInfo !== null && fileInfo.ok) {
