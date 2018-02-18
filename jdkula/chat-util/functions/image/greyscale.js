@@ -13,6 +13,6 @@ module.exports = async (image, context) => {
 
     let imageBuffer = Buffer.from(image, 'base64');
     let imageProcessor = await jimp.read(imageBuffer);
-    imageProcessor.greyscale;
+    imageProcessor.greyscale();
     return await imageUtil.getBase64(imageProcessor);
 };
